@@ -75,6 +75,8 @@ const FaceVisualization = ({ pixelData }) => {
         near: 0.1,
         far: 1000,
       }}
+      dpr={[1, 2]} // Optimize for mobile devices
+      touch // Enable touch controls
     >
       <ambientLight intensity={0.8} />
       <pointLight position={[10, 10, 10]} intensity={0.5} />
@@ -85,6 +87,9 @@ const FaceVisualization = ({ pixelData }) => {
         enableRotate={true}
         minDistance={2}
         maxDistance={50}
+        touchAction="none"
+        enableDamping={true}
+        dampingFactor={0.05}
       />
     </Canvas>
   );
