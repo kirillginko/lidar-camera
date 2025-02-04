@@ -1,3 +1,5 @@
+"use client";
+
 import { useRef, useEffect, useState } from "react";
 import { Camera } from "@mediapipe/camera_utils";
 import { FaceMesh } from "@mediapipe/face_mesh";
@@ -6,10 +8,12 @@ import styles from "../styles/FaceMesh.module.css";
 
 const FaceMeshComponent = () => {
   const videoRef = useRef(null);
+  const canvasRef = useRef(null);
   const [landmarks, setLandmarks] = useState([]);
+  const [pixelData, setPixelData] = useState(null);
 
   useEffect(() => {
-    if (!videoRef.current) return;
+    if (!videoRef.current || !canvasRef.current) return;
 
     const faceMesh = new FaceMesh({
       locateFile: (file) => {
@@ -34,6 +38,13 @@ const FaceMeshComponent = () => {
       onFrame: async () => {
         if (videoRef.current) {
           await faceMesh.send({ image: videoRef.current });
+
+          // Capture video frame and extract pixel data
+          const canvas = canvasRef.current;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          setPixelData(imageData);
         }
       },
       width: 640,
@@ -53,9 +64,15 @@ const FaceMeshComponent = () => {
     <div className={styles.container}>
       <div className={styles.videoContainer}>
         <video ref={videoRef} className={styles.video} />
+        <canvas
+          ref={canvasRef}
+          width={640}
+          height={480}
+          style={{ display: "none" }}
+        />
       </div>
       <div className={styles.visualizationContainer}>
-        <FaceVisualization landmarks={landmarks} />
+        <FaceVisualization landmarks={landmarks} pixelData={pixelData} />
       </div>
     </div>
   );
