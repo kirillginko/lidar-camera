@@ -9,13 +9,21 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "next": "15.1.6"
+    "@mediapipe/camera_utils": "^0.3.1675466862",
+    "@mediapipe/control_utils": "^0.6.1675466023",
+    "@mediapipe/drawing_utils": "^0.3.1675466124",
+    "@mediapipe/face_mesh": "^0.4.1633559619",
+    "@react-three/drei": "9.88.0",
+    "@react-three/fiber": "8.13.5",
+    "next": "13.4.19",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "three": "0.157.0",
+    "three-mesh-bvh": "0.6.3"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3",
     "eslint": "^9",
-    "eslint-config-next": "15.1.6",
-    "@eslint/eslintrc": "^3"
+    "eslint-config-next": "15.1.6"
   }
 }
