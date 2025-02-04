@@ -41,6 +41,9 @@ const FaceMeshComponent = () => {
       minTrackingConfidence: 0.5,
     });
 
+    let frameCount = 0;
+    const frameSkip = 2; // Process every 2nd frame
+
     faceMesh.onResults((results) => {
       try {
         if (results.multiFaceLandmarks) {
@@ -53,40 +56,43 @@ const FaceMeshComponent = () => {
 
     const camera = new Camera(videoRef.current, {
       onFrame: async () => {
-        try {
-          if (videoRef.current) {
-            await faceMesh.send({ image: videoRef.current });
+        if (frameCount % frameSkip === 0) {
+          try {
+            if (videoRef.current) {
+              await faceMesh.send({ image: videoRef.current });
 
-            if (canvasRef.current) {
-              const canvas = canvasRef.current;
-              const ctx = canvas.getContext("2d");
-              ctx.drawImage(
-                videoRef.current,
-                0,
-                0,
-                canvas.width,
-                canvas.height
-              );
-              const imageData = ctx.getImageData(
-                0,
-                0,
-                canvas.width,
-                canvas.height
-              );
-              setPixelData(imageData);
+              if (canvasRef.current) {
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(
+                  videoRef.current,
+                  0,
+                  0,
+                  canvas.width,
+                  canvas.height
+                );
+                const imageData = ctx.getImageData(
+                  0,
+                  0,
+                  canvas.width,
+                  canvas.height
+                );
+                setPixelData(imageData);
+              }
             }
+          } catch (error) {
+            console.error("Error in camera frame processing:", error);
           }
-        } catch (error) {
-          console.error("Error in camera frame processing:", error);
         }
+        frameCount++;
       },
-      width: 160, // Reduced resolution
-      height: 120, // Reduced resolution
+      width: 320,
+      height: 240,
       video: {
         facingMode: "user",
-        width: 160, // Reduced resolution
-        height: 120, // Reduced resolution
-        frameRate: { ideal: 30, max: 30 }, // Reduced frame rate
+        width: 320,
+        height: 240,
+        frameRate: { ideal: 30, max: 30 },
       },
     });
 
@@ -132,8 +138,8 @@ const FaceMeshComponent = () => {
         />
         <canvas
           ref={canvasRef}
-          width={620} // Reduced resolution
-          height={540} // Reduced resolution
+          width={640}
+          height={480}
           style={{ display: "none" }}
         />
       </div>

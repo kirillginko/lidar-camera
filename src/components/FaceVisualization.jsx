@@ -76,7 +76,7 @@ const FaceVisualization = ({ pixelData }) => {
         far: 1000,
       }}
       dpr={[1, 2]} // Optimize for mobile devices
-      touch={true} // Disable touch controls
+      touch="true" // Changed from touch to touch="true"
     >
       <ambientLight intensity={0.8} />
       <pointLight position={[10, 10, 10]} intensity={0.5} />
