@@ -39,7 +39,6 @@ const FaceMeshComponent = () => {
         if (videoRef.current) {
           await faceMesh.send({ image: videoRef.current });
 
-          // Capture video frame and extract pixel data
           const canvas = canvasRef.current;
           const ctx = canvas.getContext("2d");
           ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
@@ -49,10 +48,39 @@ const FaceMeshComponent = () => {
       },
       width: 640,
       height: 480,
+      video: {
+        facingMode: "user",
+        width: 640,
+        height: 480,
+      },
     });
 
     camera.start().catch((err) => {
       console.error("Error starting camera:", err);
+      const fallbackCamera = new Camera(videoRef.current, {
+        onFrame: async () => {
+          if (videoRef.current) {
+            await faceMesh.send({ image: videoRef.current });
+            const canvas = canvasRef.current;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(
+              0,
+              0,
+              canvas.width,
+              canvas.height
+            );
+            setPixelData(imageData);
+          }
+        },
+        video: {
+          facingMode: "user",
+        },
+      });
+
+      fallbackCamera.start().catch((fallbackErr) => {
+        console.error("Fallback camera also failed:", fallbackErr);
+      });
     });
 
     return () => {
@@ -67,6 +95,8 @@ const FaceMeshComponent = () => {
           ref={videoRef}
           className={styles.video}
           style={{ display: "none" }}
+          playsInline
+          muted
         />
         <canvas
           ref={canvasRef}
