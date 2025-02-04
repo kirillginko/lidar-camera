@@ -11,9 +11,22 @@ const FaceMeshComponent = () => {
   const canvasRef = useRef(null);
   const [landmarks, setLandmarks] = useState([]);
   const [pixelData, setPixelData] = useState(null);
+  const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    if (!videoRef.current || !canvasRef.current) return;
+    const handleVisibilityChange = () => {
+      setIsVisible(!document.hidden);
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!videoRef.current || !canvasRef.current || !isVisible) return;
 
     const faceMesh = new FaceMesh({
       locateFile: (file) => {
@@ -67,13 +80,13 @@ const FaceMeshComponent = () => {
           console.error("Error in camera frame processing:", error);
         }
       },
-      width: 320,
-      height: 240,
+      width: 160, // Reduced resolution
+      height: 120, // Reduced resolution
       video: {
         facingMode: "user",
-        width: 320,
-        height: 240,
-        frameRate: { ideal: 30, max: 30 },
+        width: 160, // Reduced resolution
+        height: 120, // Reduced resolution
+        frameRate: { ideal: 30, max: 30 }, // Reduced frame rate
       },
     });
 
@@ -105,7 +118,7 @@ const FaceMeshComponent = () => {
         console.error("Error cleaning up:", error);
       }
     };
-  }, []);
+  }, [isVisible]);
 
   return (
     <div className={styles.container}>
@@ -119,8 +132,8 @@ const FaceMeshComponent = () => {
         />
         <canvas
           ref={canvasRef}
-          width={640}
-          height={480}
+          width={620} // Reduced resolution
+          height={540} // Reduced resolution
           style={{ display: "none" }}
         />
       </div>
