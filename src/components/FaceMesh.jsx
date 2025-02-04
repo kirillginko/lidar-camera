@@ -23,68 +23,87 @@ const FaceMeshComponent = () => {
 
     faceMesh.setOptions({
       maxNumFaces: 1,
-      refineLandmarks: true,
+      refineLandmarks: false,
       minDetectionConfidence: 0.5,
       minTrackingConfidence: 0.5,
     });
 
     faceMesh.onResults((results) => {
-      if (results.multiFaceLandmarks) {
-        setLandmarks(results.multiFaceLandmarks[0] || []);
+      try {
+        if (results.multiFaceLandmarks) {
+          setLandmarks(results.multiFaceLandmarks[0] || []);
+        }
+      } catch (error) {
+        console.error("Error processing face mesh results:", error);
       }
     });
 
     const camera = new Camera(videoRef.current, {
       onFrame: async () => {
-        if (videoRef.current) {
-          await faceMesh.send({ image: videoRef.current });
-
-          const canvas = canvasRef.current;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          setPixelData(imageData);
-        }
-      },
-      width: 640,
-      height: 480,
-      video: {
-        facingMode: "user",
-        width: 640,
-        height: 480,
-      },
-    });
-
-    camera.start().catch((err) => {
-      console.error("Error starting camera:", err);
-      const fallbackCamera = new Camera(videoRef.current, {
-        onFrame: async () => {
+        try {
           if (videoRef.current) {
             await faceMesh.send({ image: videoRef.current });
-            const canvas = canvasRef.current;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-            const imageData = ctx.getImageData(
-              0,
-              0,
-              canvas.width,
-              canvas.height
-            );
-            setPixelData(imageData);
-          }
-        },
-        video: {
-          facingMode: "user",
-        },
-      });
 
-      fallbackCamera.start().catch((fallbackErr) => {
-        console.error("Fallback camera also failed:", fallbackErr);
-      });
+            if (canvasRef.current) {
+              const canvas = canvasRef.current;
+              const ctx = canvas.getContext("2d");
+              ctx.drawImage(
+                videoRef.current,
+                0,
+                0,
+                canvas.width,
+                canvas.height
+              );
+              const imageData = ctx.getImageData(
+                0,
+                0,
+                canvas.width,
+                canvas.height
+              );
+              setPixelData(imageData);
+            }
+          }
+        } catch (error) {
+          console.error("Error in camera frame processing:", error);
+        }
+      },
+      width: 320,
+      height: 240,
+      video: {
+        facingMode: "user",
+        width: 320,
+        height: 240,
+        frameRate: { ideal: 30, max: 30 },
+      },
     });
 
+    let retryCount = 0;
+    const maxRetries = 3;
+
+    const startCamera = async () => {
+      try {
+        await camera.start();
+      } catch (err) {
+        console.error("Camera start error:", err);
+        if (retryCount < maxRetries) {
+          retryCount++;
+          console.log(`Retrying camera start (${retryCount}/${maxRetries})...`);
+          setTimeout(startCamera, 1000);
+        } else {
+          console.error("Failed to start camera after multiple attempts");
+        }
+      }
+    };
+
+    startCamera();
+
     return () => {
-      camera.stop();
+      try {
+        camera.stop();
+        faceMesh.close();
+      } catch (error) {
+        console.error("Error cleaning up:", error);
+      }
     };
   }, []);
 
