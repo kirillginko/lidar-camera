@@ -63,7 +63,11 @@ const FaceMeshComponent = () => {
   return (
     <div className={styles.container}>
       <div className={styles.videoContainer}>
-        <video ref={videoRef} className={styles.video} />
+        <video
+          ref={videoRef}
+          className={styles.video}
+          style={{ display: "none" }}
+        />
         <canvas
           ref={canvasRef}
           width={640}

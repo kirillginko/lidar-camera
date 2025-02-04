@@ -1,10 +1,27 @@
 "use client";
 
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import styles from "../styles/FaceVisualization.module.css";
+
+const RotatingPoints = ({ pointCloud }) => {
+  const pointsRef = useRef();
+
+  // Change rotation from z-axis to y-axis for horizontal rotation
+  useFrame((state, delta) => {
+    if (pointsRef.current) {
+      pointsRef.current.rotation.y += delta * 0.05; // Changed from rotation.z to rotation.y
+    }
+  });
+
+  return (
+    <points ref={pointsRef} geometry={pointCloud}>
+      <pointsMaterial vertexColors={true} size={0.01} />
+    </points>
+  );
+};
 
 const FaceVisualization = ({ pixelData }) => {
   const pointCloud = useMemo(() => {
@@ -53,28 +70,21 @@ const FaceVisualization = ({ pixelData }) => {
     <Canvas
       className={styles.canvas}
       camera={{
-        position: [0, 0, 10],
-        fov: 45,
+        position: [0, 0, 7],
+        fov: 75,
         near: 0.1,
         far: 1000,
       }}
     >
       <ambientLight intensity={0.8} />
       <pointLight position={[10, 10, 10]} intensity={0.5} />
-      {pointCloud && (
-        <points geometry={pointCloud}>
-          <pointsMaterial
-            vertexColors={true} // Enable vertex colors
-            size={0.01}
-          />
-        </points>
-      )}
+      {pointCloud && <RotatingPoints pointCloud={pointCloud} />}
       <OrbitControls
         enablePan={true}
         enableZoom={true}
         enableRotate={true}
         minDistance={2}
-        maxDistance={20}
+        maxDistance={50}
       />
     </Canvas>
   );
