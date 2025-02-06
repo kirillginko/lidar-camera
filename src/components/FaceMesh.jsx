@@ -13,6 +13,7 @@ const FaceMeshComponent = () => {
   const [pixelData, setPixelData] = useState(null);
   const [isVisible, setIsVisible] = useState(true);
 
+  // Handle visibility change
   useEffect(() => {
     const handleVisibilityChange = () => {
       setIsVisible(!document.hidden);
@@ -25,6 +26,7 @@ const FaceMeshComponent = () => {
     };
   }, []);
 
+  // Initialize FaceMesh and Camera
   useEffect(() => {
     if (!videoRef.current || !canvasRef.current || !isVisible) return;
 
@@ -37,12 +39,12 @@ const FaceMeshComponent = () => {
     faceMesh.setOptions({
       maxNumFaces: 1,
       refineLandmarks: false,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5,
+      minDetectionConfidence: 0.6,
+      minTrackingConfidence: 0.6,
     });
 
     let frameCount = 0;
-    const frameSkip = 2; // Process every 2nd frame
+    const frameSkip = 3; // Process every 3rd frame
 
     faceMesh.onResults((results) => {
       try {
@@ -92,7 +94,7 @@ const FaceMeshComponent = () => {
         facingMode: "user",
         width: 320,
         height: 240,
-        frameRate: { ideal: 30, max: 30 },
+        frameRate: { ideal: 16, max: 16 }, // Lower frame rate for performance
       },
     });
 

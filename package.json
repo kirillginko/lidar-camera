@@ -15,6 +15,7 @@
     "@mediapipe/face_mesh": "^0.4.1633559619",
     "@react-three/drei": "9.88.0",
     "@react-three/fiber": "8.13.5",
+    "@react-three/postprocessing": "^2.19.1",
     "next": "13.4.19",
     "react": "18.2.0",
     "react-dom": "18.2.0",
