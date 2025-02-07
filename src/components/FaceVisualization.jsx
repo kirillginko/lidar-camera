@@ -96,9 +96,11 @@ const FaceVisualization = ({ pixelData }) => {
       />
       <EffectComposer>
         <Bloom
-          intensity={1} // Adjust bloom intensity
-          luminanceThreshold={0.2} // Adjust what brightness level starts to bloom
-          luminanceSmoothing={0.9} // Adjust how smooth the bloom appears
+          intensity={5}
+          luminanceThreshold={0.1}
+          luminanceSmoothing={0.9}
+          kernelSize={2}
+          radius={3}
         />
       </EffectComposer>
     </Canvas>
